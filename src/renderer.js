@@ -146,23 +146,19 @@ quitBtn.addEventListener('click',function(){window.joVideos.quit();});
 checkUpdateBtn.addEventListener('click',async function(){
   settingsPanel.classList.add('hidden');
   st('正在检查更新...','');
+  await doUpdateCheck(true);
+});
+
+// Auto check update on startup (silent)
+setTimeout(function(){ doUpdateCheck(false); },3000);
+
+async function doUpdateCheck(showStatus){
   var info=await window.joVideos.checkUpdate();
-  if(info.error){st('检查更新失败: '+info.error,'');return;}
-  if(!info.hasUpdate){st('已是最新版本 v'+info.current,'success');return;}
-  var ok=confirm('发现新版本 v'+info.latest+'\n当前版本 v'+info.current+'\n\n是否下载更新？');
-  if(!ok)return;
+  if(info.error){if(showStatus) st('检查更新失败: '+info.error,'');return;}
+  if(!info.hasUpdate){if(showStatus) st('已是最新版本 v'+info.current,'success');return;}
   var asset=(info.assets||[]).find(function(a){return a.name&&a.name.endsWith('.exe');});
-  if(!asset){st('未找到安装包','');return;}
+  if(!asset){if(showStatus) st('未找到安装包','');return;}
   st('正在下载更新 v'+info.latest+'...','exporting');
   var r=await window.joVideos.downloadUpdate({url:asset.url,fileName:asset.name});
   if(!r.ok) st('更新下载失败: '+r.error,'');
-});
-
-// Auto check update on startup
-setTimeout(function(){
-  window.joVideos.checkUpdate().then(function(info){
-    if(info.hasUpdate){
-      st('发现新版本 v'+info.latest,'');
-    }
-  }).catch(function(){});
-},3000);
+}
