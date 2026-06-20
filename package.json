@@ -7,7 +7,7 @@
     "scripts": {
         "make-icon": "node ./scripts/create-icon.js",
         "start": "node ./node_modules/electron/cli.js .",
-        "dist": "node ./node_modules/electron-builder/cli.js --win nsis",
+        "dist": "node ./node_modules/electron-builder/cli.js --win portable",
         "pack": "node ./node_modules/electron-builder/cli.js --dir",
         "postinstall": "electron-builder install-app-deps"
     },
@@ -32,7 +32,7 @@
             "signAndEditExecutable": false,
             "target": [
                 {
-                    "target": "nsis",
+                    "target": "portable",
                     "arch": [
                         "x64"
                     ]
