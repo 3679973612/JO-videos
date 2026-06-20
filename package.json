@@ -1,6 +1,6 @@
 {
     "name": "jo-videos",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "JO videos screen recorder for Windows",
     "author": "Codex",
     "main": "src/main.js",
