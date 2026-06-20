@@ -1,0 +1,61 @@
+{
+    "name": "jo-videos",
+    "version": "0.1.0-beta.0",
+    "description": "JO videos screen recorder for Windows",
+    "author": "Codex",
+    "main": "src/main.js",
+    "scripts": {
+        "make-icon": "node ./scripts/create-icon.js",
+        "start": "node ./node_modules/electron/cli.js .",
+        "dist": "node ./node_modules/electron-builder/cli.js --win nsis",
+        "pack": "node ./node_modules/electron-builder/cli.js --dir",
+        "postinstall": "electron-builder install-app-deps"
+    },
+    "build": {
+        "appId": "com.jovideos.recorder",
+        "productName": "JO videos",
+        "directories": {
+            "output": "dist-v6",
+            "buildResources": "assets"
+        },
+        "files": [
+            "src/**/*",
+            "assets/**/*",
+            "package.json",
+            "node_modules/ffmpeg-static/**"
+        ],
+        "asarUnpack": [
+            "node_modules/ffmpeg-static/**"
+        ],
+        "win": {
+            "icon": "assets/icon.ico",
+            "signAndEditExecutable": false,
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ],
+            "artifactName": "JO-videos-Setup-${version}.${ext}"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "allowElevation": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true,
+            "shortcutName": "JO videos",
+            "deleteAppDataOnUninstall": false
+        }
+    },
+    "devDependencies": {
+        "electron": "^33.2.1",
+        "electron-builder": "^25.1.8",
+        "sharp": "^0.35.2"
+    },
+    "dependencies": {
+        "ffmpeg-static": "^5.3.0"
+    }
+}

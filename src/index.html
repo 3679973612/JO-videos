@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self';"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>JO videos</title>
+    <link rel="stylesheet" href="./styles.css"/>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="top-bar">
+        <div class="brand">
+          <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#ff5f57"/><circle cx="12" cy="12" r="5" fill="white"/></svg></div>
+          <div class="brand-text"><h1>JO videos</h1><span class="subtitle">v2.2.2</span></div>
+        </div>
+        <div class="win-controls">
+          <button id="settingsBtn" class="win-btn" type="button" aria-label="设置"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+          <button id="minimizeButton" class="win-btn" type="button"><svg width="12" height="2" viewBox="0 0 12 2"><rect width="12" height="2" rx="1" fill="currentColor"/></svg></button>
+          <button id="closeButton" class="win-btn danger" type="button"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+        </div>
+      </header>
+
+      <!-- Cards Grid: 2 per row -->
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-label">🖥️ 来源</div>
+          <div class="card-body">
+            <select id="sourceSelect" class="card-select"></select>
+            <button id="refreshButton" class="card-icon-btn" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">⚙️ 帧率</div>
+          <div class="card-body">
+            <select id="fpsSelect" class="card-select"><option value="15">15 FPS</option><option value="24">24 FPS</option><option value="30" selected>30 FPS</option><option value="60">60 FPS</option></select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">📐 分辨率</div>
+          <div class="card-body">
+            <select id="resSelect" class="card-select"><option value="auto">自动</option><option value="3840x2160">4K</option><option value="2560x1440">2K</option><option value="1920x1080" selected>1080p</option><option value="1280x720">720p</option><option value="custom">自定义</option></select>
+            <div id="customResFields" class="custom-res hidden"><input id="resWidth" type="number" min="320" max="7680" value="1920" placeholder="W"/><span>×</span><input id="resHeight" type="number" min="240" max="4320" value="1080" placeholder="H"/></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">🎬 格式</div>
+          <div class="card-body">
+            <select id="formatSelect" class="card-select"><option value="mp4">MP4</option><option value="webm">WebM</option><option value="mkv">MKV</option></select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">🎤 麦克风</div>
+          <div class="card-body card-toggle"><label class="switch"><input id="micToggle" type="checkbox" checked/><span class="slider"></span></label></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">🫥 录屏隐藏</div>
+          <div class="card-body card-toggle"><label class="switch"><input id="hideToggle" type="checkbox" checked/><span class="slider"></span></label></div>
+        </div>
+      </div>
+
+      <!-- Record Button -->
+      <div class="record-area">
+        <button id="recordButton" class="record-btn"><span class="record-dot"></span><span class="record-text">开始录制</span></button>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="dir-picker">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span id="dirText" class="dir-path">默认目录</span>
+          <button id="dirButton" class="dir-link" type="button">更改</button>
+        </div>
+        <div class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">准备就绪</span></div>
+        <button id="openButton" class="open-link hidden" type="button"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>打开文件</button>
+      </footer>
+
+      <!-- Settings Panel -->
+      <div id="settingsPanel" class="settings-panel hidden">
+        <div class="panel-header"><span class="panel-title">设置</span><button id="closeSettings" class="panel-close" type="button">&times;</button></div>
+        <div class="panel-body">
+          <button id="versionBtn" class="panel-btn" type="button">📦 版本</button>
+          <button id="donateBtn" class="panel-btn" type="button">❤️ 赞赏</button>
+          <button id="quitBtn" class="panel-btn danger" type="button">🚪 退出</button>
+        </div>
+        <div class="panel-footer">JO videos <span id="appVersion"></span></div>
+      </div>
+
+      <!-- Version Modal -->
+      <div id="versionModal" class="modal hidden">
+        <div class="modal-card">
+          <div class="modal-header"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4da3f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><h2>版本管理</h2><button id="closeVersionModal" class="modal-close" type="button">&times;</button></div>
+          <div class="modal-body">
+            <div class="version-info"><span class="ver-label">当前版本</span><span id="currentVer" class="ver-tag">--</span></div>
+            <div class="ver-list-header">所有版本</div>
+            <div id="verList" class="ver-list"></div>
+            <div id="releaseNote" class="release-note hidden"></div>
+          </div>
+          <div class="modal-actions"><button id="skipVersion" class="modal-btn secondary" type="button">关闭</button><button id="doUpdate" class="modal-btn primary" type="button">下载此版本</button></div>
+        </div>
+      </div>
+
+      <!-- Donate Modal -->
+      <div id="donateModal" class="modal hidden">
+        <div class="modal-card donate-card">
+          <button id="closeDonate" class="modal-close" type="button">&times;</button>
+          <h2 class="donate-title">赞赏支持</h2>
+          <p class="donate-desc">如果 JO videos 对你有帮助，<br>请作者喝杯咖啡吧 ☕</p>
+          <img id="rewardImg" class="reward-img" alt="赞赏二维码"/>
+          <p class="donate-note">微信扫一扫</p>
+          <div class="donate-divider"></div>
+          <p class="donate-also">也欢迎在 GitHub 上给我们一个 ⭐</p>
+          <button id="starBtn" class="star-btn" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>GitHub Star</button>
+        </div>
+      </div>
+    </main>
+    <script src="./renderer.js"></script>
+  </body>
+</html>
