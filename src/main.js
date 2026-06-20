@@ -2,8 +2,13 @@ const { app, BrowserWindow, ipcMain, desktopCapturer, dialog, shell, session } =
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const https = require('https');
 const { spawn } = require('child_process');
 const ffmpegPath = require('ffmpeg-static');
+
+const CURRENT_VERSION = app.getVersion();
+const REPO_OWNER = '3679973612';
+const REPO_NAME = 'JO-videos';
 
 // Fix ffmpeg path for packaged app (asar -> asar.unpacked)
 function resolveFfmpegPath(p) {
@@ -140,3 +145,70 @@ ipcMain.handle('recording:transcode', async (_e, { inputPath, outputPath }) => {
 });
 
 ipcMain.handle('file:show', async (_e, fp) => { if (!fp) return false; await shell.showItemInFolder(fp); return true; });
+
+// --- Auto Update ---
+function httpsGet(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, { headers: { 'User-Agent': 'JO-videos' } }, res => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        return httpsGet(res.headers.location).then(resolve, reject);
+      }
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+}
+
+function httpsDownload(url, dest) {
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(dest);
+    https.get(url, { headers: { 'User-Agent': 'JO-videos' } }, res => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        file.close(); fs.unlinkSync(dest);
+        return httpsDownload(res.headers.location, dest).then(resolve, reject);
+      }
+      res.pipe(file);
+      file.on('finish', () => { file.close(); resolve(dest); });
+    }).on('error', e => { file.close(); fs.unlinkSync(dest); reject(e); });
+  });
+}
+
+ipcMain.handle('update:check', async () => {
+  try {
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`;
+    const raw = await httpsGet(url);
+    const release = JSON.parse(raw);
+    const latest = (release.tag_name || '').replace(/^v/i, '');
+    if (!latest) return { hasUpdate: false, error: '无法解析版本号' };
+    const hasUpdate = latest !== CURRENT_VERSION;
+    return {
+      hasUpdate,
+      current: CURRENT_VERSION,
+      latest,
+      name: release.name || release.tag_name,
+      body: release.body || '',
+      assets: (release.assets || []).map(a => ({ name: a.name, url: a.browser_download_url, size: a.size }))
+    };
+  } catch (e) {
+    console.error('[update] check failed:', e.message);
+    return { hasUpdate: false, error: e.message };
+  }
+});
+
+ipcMain.handle('update:download', async (event, { url, fileName }) => {
+  const dest = path.join(os.tmpdir(), fileName || 'JO-videos-Setup.exe');
+  try {
+    console.log('[update] downloading:', url);
+    await httpsDownload(url, dest);
+    console.log('[update] downloaded to:', dest);
+    spawn(dest, [], { detached: true, stdio: 'ignore' }).unref();
+    app.quit();
+    return { ok: true };
+  } catch (e) {
+    console.error('[update] download failed:', e.message);
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('app:quit', () => app.quit());

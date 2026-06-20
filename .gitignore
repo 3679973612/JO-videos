@@ -3,3 +3,7 @@ dist/
 dist-*/
 *.exe
 *.blockmap
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

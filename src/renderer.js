@@ -15,6 +15,10 @@ var dirButton=document.getElementById('dirButton');
 var minimizeButton=document.getElementById('minimizeButton');
 var closeButton=document.getElementById('closeButton');
 var hideToggle=document.getElementById('hideToggle');
+var settingsBtn=document.getElementById('settingsBtn');
+var settingsPanel=document.getElementById('settingsPanel');
+var checkUpdateBtn=document.getElementById('checkUpdateBtn');
+var quitBtn=document.getElementById('quitBtn');
 
 var COPY={
   start:'\u5f00\u59cb\u5f55\u5236',
@@ -125,3 +129,40 @@ minimizeButton.addEventListener('click',function(){window.joVideos.minimize();})
 closeButton.addEventListener('click',function(){window.joVideos.close();});
 customResFields.classList.add('hidden');
 loadSrc().catch(function(e){console.error(e);st(COPY.initFail,'');});
+
+// --- Settings Menu ---
+settingsBtn.addEventListener('click',function(e){
+  e.stopPropagation();
+  settingsPanel.classList.toggle('hidden');
+});
+document.addEventListener('click',function(e){
+  if(!settingsPanel.contains(e.target)&&e.target!==settingsBtn){
+    settingsPanel.classList.add('hidden');
+  }
+});
+
+quitBtn.addEventListener('click',function(){window.joVideos.quit();});
+
+checkUpdateBtn.addEventListener('click',async function(){
+  settingsPanel.classList.add('hidden');
+  st('正在检查更新...','');
+  var info=await window.joVideos.checkUpdate();
+  if(info.error){st('检查更新失败: '+info.error,'');return;}
+  if(!info.hasUpdate){st('已是最新版本 v'+info.current,'success');return;}
+  var ok=confirm('发现新版本 v'+info.latest+'\n当前版本 v'+info.current+'\n\n是否下载更新？');
+  if(!ok)return;
+  var asset=(info.assets||[]).find(function(a){return a.name&&a.name.endsWith('.exe');});
+  if(!asset){st('未找到安装包','');return;}
+  st('正在下载更新 v'+info.latest+'...','exporting');
+  var r=await window.joVideos.downloadUpdate({url:asset.url,fileName:asset.name});
+  if(!r.ok) st('更新下载失败: '+r.error,'');
+});
+
+// Auto check update on startup
+setTimeout(function(){
+  window.joVideos.checkUpdate().then(function(info){
+    if(info.hasUpdate){
+      st('发现新版本 v'+info.latest,'');
+    }
+  }).catch(function(){});
+},3000);
