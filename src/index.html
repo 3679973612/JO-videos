@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JO videos</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="top-bar">
+        <div class="brand">
+          <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="11" fill="#ff5f57"/>
+              <circle cx="12" cy="12" r="5" fill="white"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>JO videos</h1>
+            <span class="subtitle">Screen Recorder</span>
+          </div>
+        </div>
+        <div class="win-controls">
+          <button id="minimizeButton" class="win-btn" type="button" aria-label="最小化">
+            <svg width="12" height="2" viewBox="0 0 12 2"><rect width="12" height="2" rx="1" fill="currentColor"/></svg>
+          </button>
+          <button id="closeButton" class="win-btn danger" type="button" aria-label="关闭">
+            <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="controls">
+        <div class="source-section">
+          <div class="section-label">来源</div>
+          <div class="source-row">
+            <select id="sourceSelect" class="select"></select>
+            <button id="refreshButton" class="icon-btn" type="button" aria-label="刷新">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="settings-section">
+          <div class="setting">
+            <span class="setting-label">帧率</span>
+            <select id="fpsSelect" class="select sm">
+              <option value="15">15</option>
+              <option value="24">24</option>
+              <option value="30" selected>30</option>
+              <option value="60">60</option>
+            </select>
+          </div>
+          <div class="setting">
+            <span class="setting-label">分辨率</span>
+            <select id="resSelect" class="select sm">
+              <option value="auto">自动</option>
+              <option value="3840x2160">4K</option>
+              <option value="2560x1440">2K</option>
+              <option value="1920x1080" selected>1080p</option>
+              <option value="1280x720">720p</option>
+              <option value="custom">自定义</option>
+            </select>
+            <div id="customResFields" class="custom-res hidden">
+              <input id="resWidth" type="number" min="320" max="7680" step="2" value="1920" placeholder="W" />
+              <span class="x">×</span>
+              <input id="resHeight" type="number" min="240" max="4320" step="2" value="1080" placeholder="H" />
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="toggles-section">
+          <label class="toggle-item" title="录制麦克风">
+            <span class="toggle-label">麦克风</span>
+            <label class="switch">
+              <input id="micToggle" type="checkbox" checked />
+              <span class="slider"></span>
+            </label>
+          </label>
+          <label class="toggle-item" title="录屏时隐藏窗口">
+            <span class="toggle-label">录屏隐藏</span>
+            <label class="switch">
+              <input id="hideToggle" type="checkbox" checked />
+              <span class="slider"></span>
+            </label>
+          </label>
+        </div>
+
+        <button id="recordButton" class="record-btn" type="button">
+          <span class="record-dot"></span>
+          <span class="record-text">开始录制</span>
+        </button>
+      </div>
+
+      <footer class="footer">
+        <div class="dir-picker">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span id="dirText" class="dir-path" title="">默认目录</span>
+          <button id="dirButton" class="dir-link" type="button">更改</button>
+        </div>
+        <div class="status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">准备就绪</span>
+        </div>
+        <button id="openButton" class="open-link hidden" type="button">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          打开文件
+        </button>
+      </footer>
+    </main>
+    <script src="./renderer.js"></script>
+  </body>
+</html>
