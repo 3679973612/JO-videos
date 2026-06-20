@@ -176,19 +176,27 @@ function httpsDownload(url, dest) {
 
 ipcMain.handle('update:check', async () => {
   try {
-    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`;
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases`;
     const raw = await httpsGet(url);
-    const release = JSON.parse(raw);
-    const latest = (release.tag_name || '').replace(/^v/i, '');
-    if (!latest) return { hasUpdate: false, error: '无法解析版本号' };
-    const hasUpdate = latest !== CURRENT_VERSION;
+    const releases = JSON.parse(raw);
+    const latest = releases[0];
+    if (!latest) return { hasUpdate: false, error: '无发布版本' };
+    const latestVer = (latest.tag_name || '').replace(/^v/i, '');
+    const hasUpdate = latestVer !== CURRENT_VERSION;
     return {
       hasUpdate,
       current: CURRENT_VERSION,
-      latest,
-      name: release.name || release.tag_name,
-      body: release.body || '',
-      assets: (release.assets || []).map(a => ({ name: a.name, url: a.browser_download_url, size: a.size }))
+      latest: latestVer,
+      name: latest.name || latest.tag_name,
+      body: latest.body || '',
+      assets: (latest.assets || []).map(a => ({ name: a.name, url: a.browser_download_url, size: a.size })),
+      versions: releases.map(r => ({
+        tag: r.tag_name,
+        name: r.name || r.tag_name,
+        body: r.body || '',
+        date: r.published_at,
+        assets: (r.assets || []).map(a => ({ name: a.name, url: a.browser_download_url, size: a.size }))
+      }))
     };
   } catch (e) {
     console.error('[update] check failed:', e.message);
@@ -212,3 +220,4 @@ ipcMain.handle('update:download', async (event, { url, fileName }) => {
 });
 
 ipcMain.handle('app:quit', () => app.quit());
+ipcMain.handle('app:version', () => CURRENT_VERSION);

@@ -17,8 +17,16 @@ var closeButton=document.getElementById('closeButton');
 var hideToggle=document.getElementById('hideToggle');
 var settingsBtn=document.getElementById('settingsBtn');
 var settingsPanel=document.getElementById('settingsPanel');
+var closeSettings=document.getElementById('closeSettings');
 var checkUpdateBtn=document.getElementById('checkUpdateBtn');
 var quitBtn=document.getElementById('quitBtn');
+var updateModal=document.getElementById('updateModal');
+var currentVer=document.getElementById('currentVer');
+var latestVer=document.getElementById('latestVer');
+var releaseNote=document.getElementById('releaseNote');
+var verList=document.getElementById('verList');
+var skipUpdate=document.getElementById('skipUpdate');
+var doUpdate=document.getElementById('doUpdate');
 
 var COPY={
   start:'\u5f00\u59cb\u5f55\u5236',
@@ -130,18 +138,27 @@ closeButton.addEventListener('click',function(){window.joVideos.close();});
 customResFields.classList.add('hidden');
 loadSrc().catch(function(e){console.error(e);st(COPY.initFail,'');});
 
-// --- Settings Menu ---
+// Show app version
+window.joVideos.getVersion().then(function(v){
+  document.getElementById('appVersion').textContent='v'+v;
+});
+
+// --- Settings Panel ---
 settingsBtn.addEventListener('click',function(e){
   e.stopPropagation();
   settingsPanel.classList.toggle('hidden');
 });
+closeSettings.addEventListener('click',function(){settingsPanel.classList.add('hidden');});
 document.addEventListener('click',function(e){
   if(!settingsPanel.contains(e.target)&&e.target!==settingsBtn){
     settingsPanel.classList.add('hidden');
   }
 });
-
 quitBtn.addEventListener('click',function(){window.joVideos.quit();});
+
+// --- Update Modal ---
+var pendingAsset=null;
+var pendingVersions=null;
 
 checkUpdateBtn.addEventListener('click',async function(){
   settingsPanel.classList.add('hidden');
@@ -149,16 +166,57 @@ checkUpdateBtn.addEventListener('click',async function(){
   await doUpdateCheck(true);
 });
 
-// Auto check update on startup (silent)
+skipUpdate.addEventListener('click',function(){updateModal.classList.add('hidden');});
+doUpdate.addEventListener('click',async function(){
+  if(!pendingAsset)return;
+  updateModal.classList.add('hidden');
+  st('正在下载更新...','exporting');
+  var r=await window.joVideos.downloadUpdate({url:pendingAsset.url,fileName:pendingAsset.name});
+  if(!r.ok) st('更新下载失败: '+r.error,'');
+});
+
+// Auto check on startup
 setTimeout(function(){ doUpdateCheck(false); },3000);
 
 async function doUpdateCheck(showStatus){
   var info=await window.joVideos.checkUpdate();
   if(info.error){if(showStatus) st('检查更新失败: '+info.error,'');return;}
   if(!info.hasUpdate){if(showStatus) st('已是最新版本 v'+info.current,'success');return;}
-  var asset=(info.assets||[]).find(function(a){return a.name&&a.name.endsWith('.exe');});
-  if(!asset){if(showStatus) st('未找到安装包','');return;}
-  st('正在下载更新 v'+info.latest+'...','exporting');
-  var r=await window.joVideos.downloadUpdate({url:asset.url,fileName:asset.name});
-  if(!r.ok) st('更新下载失败: '+r.error,'');
+  currentVer.textContent='v'+info.current;
+  // Build version list
+  verList.innerHTML='';
+  var versions=info.versions||[];
+  for(var i=0;i<versions.length;i++){
+    var v=versions[i];
+    var vVer=(v.tag||'').replace(/^v/i,'');
+    if(vVer===info.current)continue;
+    var asset=(v.assets||[]).find(function(a){return a.name&&a.name.endsWith('.exe');});
+    if(!asset)continue;
+    var d=new Date(v.date);
+    var dateStr=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+    var item=document.createElement('div');
+    item.className='ver-item'+(i===0?' selected':'');
+    item.dataset.url=asset.url;
+    item.dataset.name=asset.name;
+    item.innerHTML='<div class="ver-item-left"><span class="ver-item-tag">'+v.tag+'</span><span class="ver-item-date">'+dateStr+'</span></div>'+(i===0?'<span class="ver-item-badge latest">最新</span>':'<span class="ver-item-badge">可选</span>');
+    item.addEventListener('click',function(){
+      var items=verList.querySelectorAll('.ver-item');
+      for(var j=0;j<items.length;j++)items[j].classList.remove('selected');
+      this.classList.add('selected');
+      pendingAsset={url:this.dataset.url,name:this.dataset.name};
+      var note=releaseNote;
+      var idx=Array.prototype.indexOf.call(items,this);
+      var matched=versions.filter(function(v){return(v.tag||'').replace(/^v/i,'')!==info.current;});
+      if(matched[idx]){note.textContent=matched[idx].body||'暂无更新说明';note.classList.remove('hidden');}
+    });
+    verList.appendChild(item);
+  }
+  // Default select first
+  var first=verList.querySelector('.ver-item.selected');
+  if(first){
+    pendingAsset={url:first.dataset.url,name:first.dataset.name};
+    var firstV=versions.find(function(v){return(v.tag||'').replace(/^v/i,'')!==info.current;});
+    if(firstV&&firstV.body){releaseNote.textContent=firstV.body;releaseNote.classList.remove('hidden');}
+  }
+  updateModal.classList.remove('hidden');
 }

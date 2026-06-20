@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('joVideos', {
   minimize: () => ipcRenderer.invoke('window:minimize'),
   close: () => ipcRenderer.invoke('window:close'),
   quit: () => ipcRenderer.invoke('app:quit'),
+  getVersion: () => ipcRenderer.invoke('app:version'),
   setHideOnRecord: (enabled) => ipcRenderer.invoke('window:set-hide-on-record', enabled),
   recordingStarted: () => ipcRenderer.invoke('recording:started'),
   recordingStopped: () => ipcRenderer.invoke('recording:stopped'),
